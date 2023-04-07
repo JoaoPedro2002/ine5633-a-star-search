@@ -39,16 +39,17 @@ class Board:
         return Board.flat_map(board) == Board.GOAL
 
     @staticmethod
-    def pretty_print(board: list[list[int]]):
+    def board_to_str(board: list[list[int]]) -> str:
         """
-        Mostra o tabuleiro na tela
+        Retorna o tabuleiro como string
         :param board:
+        :return: tabuleiro como str formatado
         """
         s = [[str(e) for e in row] for row in board]
         lens = [max(map(len, col)) for col in zip(*s)]
         fmt = '\t'.join('{{:{}}}'.format(x) for x in lens)
         table = [fmt.format(*row) for row in s]
-        print('\n'.join(table))
+        return '\n'.join(table)
 
     @staticmethod
     def move(board, move: tuple[int, int], empty_space: tuple[int, int]) -> list[list[int]]:

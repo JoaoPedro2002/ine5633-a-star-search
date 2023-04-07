@@ -1,11 +1,11 @@
 import search
 import time
 from src.board import Board
+from logger import logger, VERBOSE
 
 if __name__ == "__main__":
-    easy_board = [[1,2,3], [None,5,6], [4,7,8]]
     random_board = Board.new_board()
-    Board.pretty_print(random_board)
+    logger.log(VERBOSE, "Tabuleiro desordenado \n" + Board.board_to_str(random_board))
 
     # Custo uniforme e tempo para resolver
     start = time.time()
@@ -17,4 +17,4 @@ if __name__ == "__main__":
     while not path.empty():
         empty_space = Board.board_state(random_board)[1]
         random_board = Board.move(random_board, path.get(), empty_space)
-    Board.pretty_print(random_board)
+    logger.log(VERBOSE, "Tabuleiro resolvido \n" + Board.board_to_str(random_board))
