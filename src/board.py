@@ -3,7 +3,7 @@ import random
 class Board:
     N_LINES = 3
     N_ELEMENTS = 8
-    GOAL = [*range(1, N_ELEMENTS + 1), None]
+    GOAL = [*range(1, N_ELEMENTS + 1), 0]
     @staticmethod
     def new_board(number_of_moves=100) -> list[list[int]]:
         """
@@ -15,7 +15,7 @@ class Board:
         numbers = Board.GOAL[:]
         board = list()
         for _ in range(Board.N_LINES):
-            board.append([[None]] * 3)
+            board.append([[0]] * 3)
 
         for i in range(Board.N_LINES):
             for j in range(Board.N_LINES):
@@ -36,7 +36,7 @@ class Board:
         :param board: tabuleiro
         :return: se o objetivo foi alcançado
         """
-        return Board.flat_map(board) == Board.GOAL
+        return Board.flatten(board) == Board.GOAL
 
     @staticmethod
     def board_to_str(board: list[list[int]]) -> str:
@@ -64,7 +64,7 @@ class Board:
         for i in range(Board.N_LINES):
             new_board[i] = new_board[i][:]
         new_board[empty_space[0]][empty_space[1]] = new_board[move[0]][move[1]]
-        new_board[move[0]][move[1]] = None
+        new_board[move[0]][move[1]] = 0
         return new_board
 
     @staticmethod
@@ -78,9 +78,11 @@ class Board:
         empty_pos = None
         for i in range(Board.N_LINES):
             for j in range(Board.N_LINES):
-                if board[i][j] is None:
+                if board[i][j] == 0:
                     empty_pos = i, j
                     break
+            if empty_pos:
+                break
         x = empty_pos[0]
         y = empty_pos[1]
 
@@ -98,7 +100,7 @@ class Board:
         return possible_moves, (x, y)
 
     @staticmethod
-    def flat_map(board: list[list[int]]) -> list[int]:
+    def flatten(board: list[list[int]]) -> list[int]:
         """
         Transforma uma matriz em uma lista
         :param board: tabuleiro
