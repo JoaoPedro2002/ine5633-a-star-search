@@ -19,7 +19,7 @@ def build_board(smallest_path, board):
 
 
 if __name__ == "__main__":
-    # Easier board solvable in 6 moves:  [[2, 5, 3], [1, 0, 6], [4, 7, 8]]
+    # Easier board solvable in 06 moves: [[2, 5, 3], [1, 0, 6], [4, 7, 8]]
     # Medium board solvable in 14 moves: [[2, 3, 8], [1, 0, 6], [5, 4, 7]]
     # Harder board solvable in 26 moves: [[6, 3, 7], [4, 0, 8], [1, 2, 5]]
     random_board = Board.new_board()

@@ -2,10 +2,10 @@ import random
 
 class Board:
     N_LINES = 3
-    N_ELEMENTS = 8
-    GOAL = [*range(1, N_ELEMENTS + 1), 0]
+    N_ELEMENTS = N_LINES**2
+    GOAL = [*range(1, N_ELEMENTS), 0]
     @staticmethod
-    def new_board(number_of_moves=100) -> list[list[int]]:
+    def new_board(number_of_moves=10*N_ELEMENTS) -> list[list[int]]:
         """
         O método constrói um tabuleiro ordenado e realiza movimentos aleatórios.
         O método não trata movimentos redundantes
@@ -15,7 +15,7 @@ class Board:
         numbers = Board.GOAL[:]
         board = list()
         for _ in range(Board.N_LINES):
-            board.append([[0]] * 3)
+            board.append([[0]] * Board.N_LINES)
 
         for i in range(Board.N_LINES):
             for j in range(Board.N_LINES):
@@ -68,36 +68,37 @@ class Board:
         return new_board
 
     @staticmethod
-    def board_state(board: list[list[int]], last_move: tuple[int, int]=None) -> tuple[list[tuple[int, int]], tuple[int, int]]:
+    def board_state(board: list[list[int]],
+                    last_move: tuple[int, int]=None) -> tuple[list[tuple[int, int]], tuple[int, int]]:
         """
         Retorna o estado do tabuleiro
         :param board:
         :param last_move:
-        :return:
+        :return: tupla contendo movimentos possíveis e a posição vazia
         """
-        empty_pos = None
+        empty_pos = Board.get_empty_pos(board)
+        board_x_axis = empty_pos[0]
+        board_y_axis = empty_pos[1]
+
+        possible_moves = list()
+        if board_x_axis > 0:
+            possible_moves.append((board_x_axis - 1, board_y_axis))
+        if board_x_axis + 1 < Board.N_LINES:
+            possible_moves.append((board_x_axis + 1, board_y_axis))
+        if board_y_axis > 0:
+            possible_moves.append((board_x_axis, board_y_axis - 1))
+        if board_y_axis + 1 < Board.N_LINES:
+            possible_moves.append((board_x_axis, board_y_axis + 1))
+        if last_move:
+            possible_moves.remove(last_move)
+        return possible_moves, empty_pos
+
+    @staticmethod
+    def get_empty_pos(board):
         for i in range(Board.N_LINES):
             for j in range(Board.N_LINES):
                 if board[i][j] == 0:
-                    empty_pos = i, j
-                    break
-            if empty_pos:
-                break
-        x = empty_pos[0]
-        y = empty_pos[1]
-
-        possible_moves = list()
-        if x > 0:
-            possible_moves.append((x - 1, y))
-        if x + 1 < Board.N_LINES:
-            possible_moves.append((x + 1, y))
-        if y > 0:
-            possible_moves.append((x, y - 1))
-        if y + 1 < Board.N_LINES:
-            possible_moves.append((x, y + 1))
-        if last_move:
-            possible_moves.remove(last_move)
-        return possible_moves, (x, y)
+                    return i, j
 
     @staticmethod
     def flatten(board: list[list[int]]) -> list[int]:

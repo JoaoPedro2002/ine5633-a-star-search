@@ -38,14 +38,12 @@ def uniform_cost_search(board: list[list[int]]) -> Queue[tuple[int, int]]:
         total_visited += 1
         for item in children(current):
             board_str = "".join(["".join([str(i) for i in line]) for line in item.board])
-            if board_str in visited:
-                continue
-            else:
-                visited.add(board_str)
+            if board_str in visited: continue
+            visited.add(board_str)
             queue.put(item)
         current = queue.get()
 
-    logger.log(VERBOSE, "Visited: " + str(total_visited) + " nodes")
+    logger.log(VERBOSE, f"Visited: {total_visited} nodes")
     return get_path_from_node(current)
 
 
@@ -59,15 +57,13 @@ def a_star_search(board: list[list[int]], advanced=False) -> Queue[tuple[int, in
         total_visited += 1
         for item in children(current):
             board_str = "".join(["".join([str(i) for i in line]) for line in item.board])
-            if board_str in visited:
-                continue
-            else:
-                visited.add(board_str)
+            if board_str in visited: continue
+            visited.add(board_str)
             item.weight = current.weight + heuristic(item)
             queue.put(item)
         current = queue.get()
 
-    logger.log(VERBOSE, "Visited: " + str(total_visited) + " nodes")
+    logger.log(VERBOSE, f"Visited: {total_visited} nodes")
     return get_path_from_node(current)
 
 
@@ -97,5 +93,5 @@ def children(node) -> list[Node]:
     moves, empty_space = Board.board_state(node.board, last_move)
     nodes = [Node(Board.move(node.board, move, empty_space),
                   node, move, node.depth + 1) for move in moves]
-    logger.debug("Found " + str(len(nodes)) + " children at depth " + str(node.depth) + " for parent " + str(node))
+    logger.debug(f"Found {len(nodes)} children at depth {node.depth} for parent {node}")
     return nodes
