@@ -14,7 +14,7 @@ HEURISTIC_WEIGHT = 0.2
 
 class Node:
     def __init__(self, board, parent, move, depth):
-        self.board: list[list[int]] = board
+        self.board: list[int] = board
         self.parent: Node = parent
         self.move: tuple[int] = move
         self.depth = depth
@@ -27,7 +27,7 @@ class Node:
         return self.weight == other.weight
 
 
-def uniform_cost_search(board: list[list[int]]) -> tuple[Queue[tuple[int, int]], int]:
+def uniform_cost_search(board: list[int]) -> tuple[Queue[tuple[int, int]], int]:
     """
     Busca de custo uniforme.
     :param board: tabuleiro
@@ -40,7 +40,7 @@ def uniform_cost_search(board: list[list[int]]) -> tuple[Queue[tuple[int, int]],
     while not board_utils.game_is_over(current.board):
         total_visited += 1
         for item in children(current):
-            board_str = "".join(["".join([str(i) for i in line]) for line in item.board])
+            board_str = "".join(str(item) for item in item.board)
             if board_str in visited: continue
             visited.add(board_str)
             queue.put(item)
@@ -49,7 +49,7 @@ def uniform_cost_search(board: list[list[int]]) -> tuple[Queue[tuple[int, int]],
     return get_path_from_node(current), total_visited
 
 
-def a_star_search(board: list[list[int]], heuristic: Callable) -> tuple[Queue[tuple[int, int]], int]:
+def a_star_search(board: list[int], heuristic: Callable) -> tuple[Queue[tuple[int, int]], int]:
     queue = PriorityQueue()
     current = Node(board, None, None, 0)
     visited = set()
@@ -57,7 +57,7 @@ def a_star_search(board: list[list[int]], heuristic: Callable) -> tuple[Queue[tu
     while not board_utils.game_is_over(current.board):
         total_visited += 1
         for item in children(current):
-            board_str = "".join(["".join([str(i) for i in line]) for line in item.board])
+            board_str = "".join(str(item) for item in item.board)
             if board_str in visited: continue
             visited.add(board_str)
             item.weight = current.weight + heuristic(item)
@@ -69,20 +69,18 @@ def a_star_search(board: list[list[int]], heuristic: Callable) -> tuple[Queue[tu
 
 def basic_heuristic(node: Node):
     score = len(board_utils.GOAL)
-    for i in range(board_utils.N_LINES):
-        for j in range(board_utils.N_LINES):
-            score -= node.board[i][j] == ((i * board_utils.N_LINES + j + 1) % board_utils.N_ELEMENTS)
+    for i in range(board_utils.N_ELEMENTS):
+        score -= node.board[i] == (i + 1) % board_utils.N_ELEMENTS
     return score * HEURISTIC_WEIGHT
 
 
 def advanced_heuristic(node: Node):
     score = 0
-    for x in range(board_utils.N_LINES):
-        for y in range(board_utils.N_LINES):
-            element = node.board[x][y]
-            correct_x, correct_y = divmod((element - 1) % board_utils.N_ELEMENTS, board_utils.N_LINES)
-            # Distancia entre as coordenadas atuais de um elemento e as corretas
-            score += ((x - correct_x) ** 2 + (y - correct_y) ** 2) ** 0.5
+    for i in range(board_utils.N_ELEMENTS):
+        element = node.board[i]
+        correct_x, correct_y = divmod((element - 1) % board_utils.N_ELEMENTS, board_utils.N_LINES)
+        x, y = divmod(i, board_utils.N_LINES)
+        score += ((x - correct_x) ** 2 + (y - correct_y) ** 2) ** 0.5
     return score * HEURISTIC_WEIGHT
 
 
