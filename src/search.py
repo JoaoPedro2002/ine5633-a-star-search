@@ -3,13 +3,14 @@ from typing import Callable
 from logger import logger
 from queue import Queue, LifoQueue, PriorityQueue
 
-from src.board import Board
+import board_utils
 
 """
 Valores muito significativos podem acarretar no melhor caminho não sendo escolhido.
 Mas o tempo de busca é mais rápida que a de custo uniforme
 """
 HEURISTIC_WEIGHT = 0.2
+
 
 class Node:
     def __init__(self, board, parent, move, depth):
@@ -36,7 +37,7 @@ def uniform_cost_search(board: list[list[int]]) -> tuple[Queue[tuple[int, int]],
     current = Node(board, None, None, 0)
     visited = set()
     total_visited = 0
-    while not Board.game_is_over(current.board):
+    while not board_utils.game_is_over(current.board):
         total_visited += 1
         for item in children(current):
             board_str = "".join(["".join([str(i) for i in line]) for line in item.board])
@@ -53,7 +54,7 @@ def a_star_search(board: list[list[int]], heuristic: Callable) -> tuple[Queue[tu
     current = Node(board, None, None, 0)
     visited = set()
     total_visited = 0
-    while not Board.game_is_over(current.board):
+    while not board_utils.game_is_over(current.board):
         total_visited += 1
         for item in children(current):
             board_str = "".join(["".join([str(i) for i in line]) for line in item.board])
@@ -67,19 +68,19 @@ def a_star_search(board: list[list[int]], heuristic: Callable) -> tuple[Queue[tu
 
 
 def basic_heuristic(node: Node):
-    score = len(Board.GOAL)
-    for i in range(Board.N_LINES):
-        for j in range(Board.N_LINES):
-            score -= node.board[i][j] == ((i*Board.N_LINES + j + 1) % Board.N_ELEMENTS)
+    score = len(board_utils.GOAL)
+    for i in range(board_utils.N_LINES):
+        for j in range(board_utils.N_LINES):
+            score -= node.board[i][j] == ((i * board_utils.N_LINES + j + 1) % board_utils.N_ELEMENTS)
     return score * HEURISTIC_WEIGHT
 
 
 def advanced_heuristic(node: Node):
     score = 0
-    for x in range(Board.N_LINES):
-        for y in range(Board.N_LINES):
+    for x in range(board_utils.N_LINES):
+        for y in range(board_utils.N_LINES):
             element = node.board[x][y]
-            correct_x, correct_y = divmod((element - 1) % Board.N_ELEMENTS, Board.N_LINES)
+            correct_x, correct_y = divmod((element - 1) % board_utils.N_ELEMENTS, board_utils.N_LINES)
             # Distancia entre as coordenadas atuais de um elemento e as corretas
             score += ((x - correct_x) ** 2 + (y - correct_y) ** 2) ** 0.5
     return score * HEURISTIC_WEIGHT
@@ -94,8 +95,8 @@ def get_path_from_node(node: Node) -> Queue[tuple[int, int]]:
 
 
 def children(node) -> list[Node]:
-    moves, empty_space = Board.board_state(node.board)
-    nodes = [Node(Board.move(node.board, move, empty_space),
+    moves, empty_space = board_utils.board_state(node.board)
+    nodes = [Node(board_utils.move(node.board, move, empty_space),
                   node, move, node.depth + 1) for move in moves]
     logger.debug(f"Found {len(nodes)} children at depth {node.depth} for parent {node}")
     return nodes

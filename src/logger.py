@@ -31,9 +31,7 @@ logging.addLevelName(VERBOSE, "VERBOSE")
 logger = logging.getLogger("Application")
 
 ch = logging.StreamHandler()
-
 ch.setFormatter(CustomFormatter())
-
 logger.addHandler(ch)
 
 def set_level(level: str | int):
