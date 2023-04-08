@@ -1,4 +1,5 @@
 from typing import Callable
+from array import array
 
 from logger import logger
 from queue import Queue, LifoQueue, PriorityQueue
@@ -14,7 +15,7 @@ HEURISTIC_WEIGHT = 0.2
 
 class Node:
     def __init__(self, board, parent, move, depth):
-        self.board: list[int] = board
+        self.board: array[int] = board
         self.parent: Node = parent
         self.move: tuple[int] = move
         self.depth = depth
@@ -27,7 +28,7 @@ class Node:
         return self.weight == other.weight
 
 
-def uniform_cost_search(board: list[int]) -> tuple[Queue[tuple[int, int]], int]:
+def uniform_cost_search(board: [int]) -> tuple[Queue[tuple[int, int]], int]:
     """
     Busca de custo uniforme.
     :param board: tabuleiro
@@ -49,7 +50,7 @@ def uniform_cost_search(board: list[int]) -> tuple[Queue[tuple[int, int]], int]:
     return get_path_from_node(current), total_visited
 
 
-def a_star_search(board: list[int], heuristic: Callable) -> tuple[Queue[tuple[int, int]], int]:
+def a_star_search(board: [int], heuristic: Callable) -> tuple[Queue[tuple[int, int]], int]:
     queue = PriorityQueue()
     current = Node(board, None, None, 0)
     visited = set()
@@ -85,7 +86,7 @@ def advanced_heuristic(node: Node):
 
 
 def get_path_from_node(node: Node) -> Queue[tuple[int, int]]:
-    path = LifoQueue()
+    path = LifoQueue(node.depth)
     while node.parent is not None:
         path.put(node.move)
         node = node.parent

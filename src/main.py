@@ -1,3 +1,4 @@
+from array import array
 from typing import Callable
 
 import search
@@ -42,9 +43,9 @@ def measure_algorithm(search_function: Callable, func_args: tuple):
 
 if __name__ == "__main__":
     set_level(LOG_LEVEL)
-    # Easier board solvable in 06 moves: [[2, 5, 3], [1, 0, 6], [4, 7, 8]]
-    # Medium board solvable in 14 moves: [[2, 3, 8], [1, 0, 6], [5, 4, 7]]
-    # Harder board solvable in 26 moves: [[6, 3, 7], [4, 0, 8], [1, 2, 5]]
+    # Easier board solvable in 06 moves: array('B', [2, 5, 3, 1, 0, 6, 4, 7, 8])
+    # Medium board solvable in 14 moves: array('B', [2, 3, 8, 1, 0, 6, 5, 4, 7])
+    # Harder board solvable in 26 moves: array('B', [6, 3, 7, 4, 0, 8, 1, 2, 5])
     random_board = board_utils.new_board()
     measure_algorithm(search.uniform_cost_search, (random_board[:],))
     measure_algorithm(search.a_star_search, (random_board[:], search.basic_heuristic))

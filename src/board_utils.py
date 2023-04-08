@@ -1,11 +1,12 @@
 import random
+from array import array
 
 N_LINES = 3
 N_ELEMENTS = N_LINES ** 2
-GOAL = [*range(1, N_ELEMENTS), 0]
+GOAL: [int] = array('B', [*range(1, N_ELEMENTS), 0])
 
 
-def new_board(number_of_moves=20 * N_LINES) -> list[int]:
+def new_board(number_of_moves=20 * N_LINES) -> [int]:
     """
     O método constrói um tabuleiro ordenado e realiza movimentos aleatórios.
     O método não trata movimentos redundantes
@@ -21,7 +22,7 @@ def new_board(number_of_moves=20 * N_LINES) -> list[int]:
     return board
 
 
-def game_is_over(board: list[int]) -> bool:
+def game_is_over(board: [int]) -> bool:
     """
     Compara o tabuleiro enviado com o objetivo
     :param board: tabuleiro
@@ -30,7 +31,7 @@ def game_is_over(board: list[int]) -> bool:
     return board == GOAL
 
 
-def board_to_str(board: list[int]) -> str:
+def board_to_str(board: [int]) -> str:
     """
     Retorna o tabuleiro como string
     :param board:
@@ -49,7 +50,7 @@ def board_to_str(board: list[int]) -> str:
     return '\n'.join(table)
 
 
-def move(board: list[int], chosen_move: int, empty_space: int) -> list[int]:
+def move(board: [int], chosen_move: int, empty_space: int) -> list[int]:
     """
     Realiza um movimento e retorna o novo tabuleiro
     :param board: tabuleiro
@@ -63,7 +64,7 @@ def move(board: list[int], chosen_move: int, empty_space: int) -> list[int]:
     return board_copy
 
 
-def board_state(board: list[int]) -> tuple[list[int], int]:
+def board_state(board: [int]) -> tuple[list[int], int]:
     """
     Retorna o estado do tabuleiro
     :param board:
@@ -83,5 +84,5 @@ def board_state(board: list[int]) -> tuple[list[int], int]:
     return possible_moves, empty_pos
 
 
-def get_empty_pos(board: list[int]) -> int:
+def get_empty_pos(board: [int]) -> int:
     return board.index(0)
