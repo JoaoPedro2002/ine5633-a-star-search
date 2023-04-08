@@ -1,4 +1,6 @@
-from logger import logger, VERBOSE
+from typing import Callable
+
+from logger import logger
 from queue import Queue, LifoQueue, PriorityQueue
 
 from src.board import Board
@@ -24,7 +26,7 @@ class Node:
         return self.weight == other.weight
 
 
-def uniform_cost_search(board: list[list[int]]) -> Queue[tuple[int, int]]:
+def uniform_cost_search(board: list[list[int]]) -> tuple[Queue[tuple[int, int]], int]:
     """
     Busca de custo uniforme.
     :param board: tabuleiro
@@ -43,12 +45,10 @@ def uniform_cost_search(board: list[list[int]]) -> Queue[tuple[int, int]]:
             queue.put(item)
         current = queue.get()
 
-    logger.log(VERBOSE, f"Visited: {total_visited} nodes")
-    return get_path_from_node(current)
+    return get_path_from_node(current), total_visited
 
 
-def a_star_search(board: list[list[int]], advanced=False) -> Queue[tuple[int, int]]:
-    heuristic = advanced_heuristic if advanced else basic_heuristic
+def a_star_search(board: list[list[int]], heuristic: Callable) -> tuple[Queue[tuple[int, int]], int]:
     queue = PriorityQueue()
     current = Node(board, None, None, 0)
     visited = set()
@@ -63,20 +63,26 @@ def a_star_search(board: list[list[int]], advanced=False) -> Queue[tuple[int, in
             queue.put(item)
         current = queue.get()
 
-    logger.log(VERBOSE, f"Visited: {total_visited} nodes")
-    return get_path_from_node(current)
+    return get_path_from_node(current), total_visited
 
 
 def basic_heuristic(node: Node):
-    flat_board = Board.flatten(node.board)
     score = len(Board.GOAL)
-    for i in range(len(flat_board)):
-        score -= Board.GOAL[i] == flat_board[i]
+    for i in range(Board.N_LINES):
+        for j in range(Board.N_LINES):
+            score -= node.board[i][j] == ((i*Board.N_LINES + j + 1) % Board.N_ELEMENTS)
     return score * HEURISTIC_WEIGHT
 
 
 def advanced_heuristic(node: Node):
-    return 0
+    score = 0
+    for x in range(Board.N_LINES):
+        for y in range(Board.N_LINES):
+            element = node.board[x][y]
+            correct_x, correct_y = divmod((element - 1) % Board.N_ELEMENTS, Board.N_LINES)
+            # Distancia entre as coordenadas atuais de um elemento e as corretas
+            score += ((x - correct_x) ** 2 + (y - correct_y) ** 2) ** 0.5
+    return score * HEURISTIC_WEIGHT
 
 
 def get_path_from_node(node: Node) -> Queue[tuple[int, int]]:
@@ -84,13 +90,11 @@ def get_path_from_node(node: Node) -> Queue[tuple[int, int]]:
     while node.parent is not None:
         path.put(node.move)
         node = node.parent
-    logger.log(VERBOSE, "Number of moves: " + str(path.qsize()))
     return path
 
 
 def children(node) -> list[Node]:
-    last_move = node.parent.move if node.parent else None
-    moves, empty_space = Board.board_state(node.board, last_move)
+    moves, empty_space = Board.board_state(node.board)
     nodes = [Node(Board.move(node.board, move, empty_space),
                   node, move, node.depth + 1) for move in moves]
     logger.debug(f"Found {len(nodes)} children at depth {node.depth} for parent {node}")

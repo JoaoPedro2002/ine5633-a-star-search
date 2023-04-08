@@ -5,7 +5,7 @@ class Board:
     N_ELEMENTS = N_LINES**2
     GOAL = [*range(1, N_ELEMENTS), 0]
     @staticmethod
-    def new_board(number_of_moves=10*N_ELEMENTS) -> list[list[int]]:
+    def new_board(number_of_moves=20*N_LINES) -> list[list[int]]:
         """
         O método constrói um tabuleiro ordenado e realiza movimentos aleatórios.
         O método não trata movimentos redundantes
@@ -23,9 +23,9 @@ class Board:
                 board[i][j] = value
 
         for i in range(number_of_moves):
-                state = Board.board_state(board)
-                move = random.choice(state[0])
-                board = Board.move(board, move, state[1])
+            state = Board.board_state(board)
+            move = random.choice(state[0])
+            board = Board.move(board, move, state[1])
 
         return board
 
@@ -68,12 +68,10 @@ class Board:
         return new_board
 
     @staticmethod
-    def board_state(board: list[list[int]],
-                    last_move: tuple[int, int]=None) -> tuple[list[tuple[int, int]], tuple[int, int]]:
+    def board_state(board: list[list[int]]) -> tuple[list[tuple[int, int]], tuple[int, int]]:
         """
         Retorna o estado do tabuleiro
         :param board:
-        :param last_move:
         :return: tupla contendo movimentos possíveis e a posição vazia
         """
         empty_pos = Board.get_empty_pos(board)
@@ -89,12 +87,10 @@ class Board:
             possible_moves.append((board_x_axis, board_y_axis - 1))
         if board_y_axis + 1 < Board.N_LINES:
             possible_moves.append((board_x_axis, board_y_axis + 1))
-        if last_move:
-            possible_moves.remove(last_move)
         return possible_moves, empty_pos
 
     @staticmethod
-    def get_empty_pos(board):
+    def get_empty_pos(board) -> tuple[int, int]:
         for i in range(Board.N_LINES):
             for j in range(Board.N_LINES):
                 if board[i][j] == 0:
