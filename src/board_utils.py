@@ -6,7 +6,7 @@ N_ELEMENTS = N_LINES ** 2
 GOAL: [int] = array('B', [*range(1, N_ELEMENTS), 0])
 
 
-def new_board(number_of_moves=20 * N_LINES) -> [int]:
+def new_board(number_of_moves=30 * N_LINES) -> [int]:
     """
     O método constrói um tabuleiro ordenado e realiza movimentos aleatórios.
     O método não trata movimentos redundantes
@@ -16,7 +16,7 @@ def new_board(number_of_moves=20 * N_LINES) -> [int]:
     board = GOAL[:]
     for i in range(number_of_moves):
         state = board_state(board)
-        chosen_move = random.choice(state[0])
+        chosen_move = random.choice(tuple(state[0]))
         board = move(board, chosen_move, state[1])
 
     return board
@@ -64,23 +64,20 @@ def move(board: [int], chosen_move: int, empty_space: int) -> list[int]:
     return board_copy
 
 
-def board_state(board: [int]) -> tuple[list[int], int]:
+def board_state(board: [int]) -> tuple[set[int], int]:
     """
     Retorna o estado do tabuleiro
     :param board:
     :return: tupla contendo movimentos possíveis e a posição vazia
     """
     empty_pos = get_empty_pos(board)
-    board_x_axis, board_y_axis = divmod(empty_pos, N_LINES)
-    possible_moves = list()
-    if board_x_axis > 0:
-        possible_moves.append(N_LINES * (board_x_axis - 1) + board_y_axis)
-    if board_x_axis + 1 < N_LINES:
-        possible_moves.append(N_LINES * (board_x_axis + 1) + board_y_axis)
-    if board_y_axis > 0:
-        possible_moves.append(N_LINES * board_x_axis + board_y_axis - 1)
-    if board_y_axis + 1 < N_LINES:
-        possible_moves.append(N_LINES * board_x_axis + board_y_axis + 1)
+    possible_moves: set[int] = {
+        empty_pos + (N_LINES * (empty_pos + N_LINES < N_ELEMENTS)),
+        empty_pos - (N_LINES * (empty_pos - N_LINES >= 0)),
+        empty_pos + (empty_pos % N_LINES != N_LINES - 1),
+        empty_pos - (empty_pos % N_LINES != 0)
+    }
+    possible_moves.discard(empty_pos)
     return possible_moves, empty_pos
 
 
