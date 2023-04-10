@@ -41,7 +41,7 @@ def uniform_cost_search(board: [int]) -> tuple[Queue[tuple[int, int]], int]:
     while not board_utils.game_is_over(current.board):
         total_visited += 1
         for item in children(current):
-            board_str = "".join(str(item) for item in item.board)
+            board_str = hash("".join(map(str, item.board)))
             if board_str in visited: continue
             visited.add(board_str)
             queue.put(item)
@@ -58,7 +58,7 @@ def a_star_search(board: [int], heuristic: Callable) -> tuple[Queue[tuple[int, i
     while not board_utils.game_is_over(current.board):
         total_visited += 1
         for item in children(current):
-            board_str = "".join(str(item) for item in item.board)
+            board_str = hash("".join(map(str, item.board)))
             if board_str in visited: continue
             visited.add(board_str)
             item.weight = current.weight + heuristic(item)
