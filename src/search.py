@@ -10,22 +10,26 @@ import board_utils
 Valores muito significativos podem acarretar no melhor caminho não sendo escolhido.
 Mas o tempo de busca é mais rápida que a de custo uniforme
 """
-HEURISTIC_WEIGHT = 0.2
+HEURISTIC_WEIGHT = 0.5
 
 
 class Node:
     def __init__(self, board, parent, move, depth):
         self.board: array[int] = board
         self.parent: Node = parent
-        self.move: tuple[int] = move
+        self.move: int = move
         self.depth = depth
+        self.cumulative_weight = 0
         self.weight = 0
 
     def __gt__(self, other):
-        return self.weight > other.weight
+        return self.cumulative_weight > other.cumulative_weight
 
     def __eq__(self, other):
-        return self.weight == other.weight
+        return self.cumulative_weight == other.cumulative_weight
+
+    def __str__(self):
+        return f"Node<depth: {self.depth}, weight: {self.cumulative_weight}>"
 
 
 def uniform_cost_search(board: [int]) -> tuple[Queue[tuple[int, int]], int]:
@@ -50,7 +54,7 @@ def uniform_cost_search(board: [int]) -> tuple[Queue[tuple[int, int]], int]:
     return get_path_from_node(current), total_visited
 
 
-def a_star_search(board: [int], heuristic: Callable) -> tuple[Queue[tuple[int, int]], int]:
+def a_star_search(board: [int], heuristic: Callable[[Node], float]) -> tuple[Queue[tuple[int, int]], int]:
     queue = PriorityQueue()
     current = Node(board, None, None, 0)
     visited = set()
@@ -61,7 +65,7 @@ def a_star_search(board: [int], heuristic: Callable) -> tuple[Queue[tuple[int, i
             board_str = hash("".join(map(str, item.board)))
             if board_str in visited: continue
             visited.add(board_str)
-            item.weight = current.weight + heuristic(item)
+            item.cumulative_weight = current.cumulative_weight + heuristic(item)
             queue.put(item)
         current = queue.get()
 
@@ -75,15 +79,24 @@ def basic_heuristic(node: Node):
     return score * HEURISTIC_WEIGHT
 
 
-def advanced_heuristic(node: Node):
-    score = 0
-    for i in range(board_utils.N_ELEMENTS):
-        element = node.board[i]
-        correct_x, correct_y = divmod((element - 1) % board_utils.N_ELEMENTS, board_utils.N_LINES)
-        x, y = divmod(i, board_utils.N_LINES)
-        score += ((x - correct_x) ** 2 + (y - correct_y) ** 2) ** 0.5
-    return score * HEURISTIC_WEIGHT
+def manhattan_distance(element: int, position: int):
+    correct_x, correct_y = divmod((element - 1) % board_utils.N_ELEMENTS, board_utils.N_LINES)
+    x, y = divmod(position, board_utils.N_LINES)
+    return abs(x - correct_x) + abs(y - correct_y)
 
+def advanced_heuristic(node: Node):
+    if node.parent is not None and node.parent.move is not None:
+        current_distance = manhattan_distance(node.board[node.move], node.move) + \
+                           manhattan_distance(node.board[node.parent.move], node.parent.move)
+
+        previous_distance = manhattan_distance(node.parent.board[node.move], node.move) + \
+                            manhattan_distance(node.parent.board[node.parent.move], node.parent.move)
+
+        node.weight = node.parent.weight + ((current_distance - previous_distance) * HEURISTIC_WEIGHT)
+    else:
+        node.weight = sum([manhattan_distance(node.board[i], i)
+                           for i in range(board_utils.N_ELEMENTS)]) * HEURISTIC_WEIGHT
+    return node.weight
 
 def get_path_from_node(node: Node) -> Queue[tuple[int, int]]:
     path = LifoQueue(node.depth)
@@ -97,5 +110,5 @@ def children(node) -> list[Node]:
     moves, empty_space = board_utils.board_state(node.board)
     nodes = [Node(board_utils.move(node.board, move, empty_space),
                   node, move, node.depth + 1) for move in moves]
-    logger.debug(f"Found {len(nodes)} children at depth {node.depth} for parent {node}")
+    logger.debug(f"Found {len(nodes)} children at {node}")
     return nodes
