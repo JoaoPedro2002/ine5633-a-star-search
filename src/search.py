@@ -1,5 +1,6 @@
 from typing import Callable
 from array import array
+import hashlib
 
 from queue import Queue, LifoQueue, PriorityQueue
 
@@ -44,7 +45,7 @@ def uniform_cost_search(board: [int]) -> tuple[Queue[tuple[int, int]], int]:
     while not board_utils.game_is_over(current.board):
         total_visited += 1
         for item in children(current):
-            board_hash = hash("".join(map(str, item.board)))
+            board_hash = hashlib.md5(item.board).digest()
             if board_hash in visited: continue
             visited.add(board_hash)
             queue.put(item)
@@ -61,7 +62,7 @@ def a_star_search(board: [int], heuristic: Callable[[Node], float]) -> tuple[Que
     while not board_utils.game_is_over(current.board):
         total_visited += 1
         for item in children(current):
-            board_hash = hash("".join(map(str, item.board)))
+            board_hash = hashlib.md5(item.board).digest()
             if board_hash in visited: continue
             visited.add(board_hash)
             item.cumulative_weight = current.cumulative_weight + heuristic(item)
