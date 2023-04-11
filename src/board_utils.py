@@ -1,9 +1,21 @@
 import random
 from array import array
+from functools import wraps
 
 N_LINES = 3
 N_ELEMENTS = N_LINES ** 2
 GOAL: [int] = array('B', [*range(1, N_ELEMENTS), 0])
+
+
+def memoize(func):
+    cache = {}
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        key = args[0]
+        if key not in cache:
+            cache[key] = func(*args, **kwargs)
+        return cache[key].copy()
+    return wrapper
 
 
 def new_board(number_of_moves=30 * N_LINES) -> [int]:
@@ -71,14 +83,20 @@ def board_state(board: [int]) -> tuple[set[int], int]:
     :return: tupla contendo movimentos possíveis e a posição vazia
     """
     empty_pos = get_empty_pos(board)
-    possible_moves: set[int] = {
+    moves = possible_moves(empty_pos)
+    return moves, empty_pos
+
+
+@memoize
+def possible_moves(empty_pos):
+    moves: set[int] = {
         empty_pos + (N_LINES * (empty_pos + N_LINES < N_ELEMENTS)),
         empty_pos - (N_LINES * (empty_pos - N_LINES >= 0)),
         empty_pos + (empty_pos % N_LINES != N_LINES - 1),
         empty_pos - (empty_pos % N_LINES != 0)
     }
-    possible_moves.discard(empty_pos)
-    return possible_moves, empty_pos
+    moves.discard(empty_pos)
+    return moves
 
 
 def get_empty_pos(board: [int]) -> int:

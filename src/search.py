@@ -1,7 +1,6 @@
 from typing import Callable
 from array import array
 
-from logger import logger
 from queue import Queue, LifoQueue, PriorityQueue
 
 import board_utils
@@ -45,9 +44,9 @@ def uniform_cost_search(board: [int]) -> tuple[Queue[tuple[int, int]], int]:
     while not board_utils.game_is_over(current.board):
         total_visited += 1
         for item in children(current):
-            board_str = hash("".join(map(str, item.board)))
-            if board_str in visited: continue
-            visited.add(board_str)
+            board_hash = hash("".join(map(str, item.board)))
+            if board_hash in visited: continue
+            visited.add(board_hash)
             queue.put(item)
         current = queue.get()
 
@@ -62,9 +61,9 @@ def a_star_search(board: [int], heuristic: Callable[[Node], float]) -> tuple[Que
     while not board_utils.game_is_over(current.board):
         total_visited += 1
         for item in children(current):
-            board_str = hash("".join(map(str, item.board)))
-            if board_str in visited: continue
-            visited.add(board_str)
+            board_hash = hash("".join(map(str, item.board)))
+            if board_hash in visited: continue
+            visited.add(board_hash)
             item.cumulative_weight = current.cumulative_weight + heuristic(item)
             queue.put(item)
         current = queue.get()
@@ -85,7 +84,7 @@ def manhattan_distance(element: int, position: int):
     return abs(x - correct_x) + abs(y - correct_y)
 
 def advanced_heuristic(node: Node):
-    if node.parent is not None and node.parent.move is not None:
+    if node.depth >= 2:
         current_distance = manhattan_distance(node.board[node.move], node.move) + \
                            manhattan_distance(node.board[node.parent.move], node.parent.move)
 
@@ -108,7 +107,8 @@ def get_path_from_node(node: Node) -> Queue[tuple[int, int]]:
 
 def children(node) -> list[Node]:
     moves, empty_space = board_utils.board_state(node.board)
+    if node.depth >= 2:
+        moves.remove(node.parent.move)
     nodes = [Node(board_utils.move(node.board, move, empty_space),
                   node, move, node.depth + 1) for move in moves]
-    logger.debug(f"Found {len(nodes)} children at {node}")
     return nodes

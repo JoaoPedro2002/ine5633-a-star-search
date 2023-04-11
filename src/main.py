@@ -28,9 +28,12 @@ def measure_search(search_function: Callable, func_args: tuple[array,Callable] |
 
 
 def build_board(smallest_path, board):
+    i = 1
     while not smallest_path.empty():
         empty_pos = board_utils.get_empty_pos(board)
         board = board_utils.move(board, smallest_path.get(), empty_pos)
+        logger.debug(f"Move {i}: \n{board_utils.board_to_str(board)}")
+        i+=1
     return board
 
 
