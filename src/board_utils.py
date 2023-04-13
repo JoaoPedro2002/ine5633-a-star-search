@@ -62,7 +62,7 @@ def board_to_str(board: [int]) -> str:
     return '\n'.join(table)
 
 
-def move(board: [int], chosen_move: int, empty_space: int) -> list[int]:
+def move(board: [int], chosen_move: int, empty_space: int) -> [int]:
     """
     Realiza um movimento e retorna o novo tabuleiro
     :param board: tabuleiro
@@ -70,7 +70,7 @@ def move(board: [int], chosen_move: int, empty_space: int) -> list[int]:
     :param empty_space: coordenadas do espaço vazio
     :return: novo tabuleiro
     """
-    board_copy = board[:]
+    board_copy: array = board[:]
     board_copy[empty_space] = board_copy[chosen_move]
     board_copy[chosen_move] = 0
     return board_copy

@@ -1,8 +1,9 @@
 from typing import Callable
 from array import array
 import hashlib
+import heapq
 
-from queue import Queue, LifoQueue, PriorityQueue
+from queue import Queue, LifoQueue
 
 import board_utils
 
@@ -26,7 +27,7 @@ class Node:
         return self.cumulative_weight > other.cumulative_weight
 
     def __eq__(self, other):
-        return self.cumulative_weight == other.cumulative_weight
+        return self.board == other.board
 
     def __str__(self):
         return f"Node<depth: {self.depth}, weight: {self.cumulative_weight}>"
@@ -55,7 +56,7 @@ def uniform_cost_search(board: [int]) -> tuple[Queue[tuple[int, int]], int]:
 
 
 def a_star_search(board: [int], heuristic: Callable[[Node], float]) -> tuple[Queue[tuple[int, int]], int]:
-    queue = PriorityQueue()
+    heap = []
     current = Node(board, None, None, 0)
     visited = set()
     total_visited = 0
@@ -66,8 +67,8 @@ def a_star_search(board: [int], heuristic: Callable[[Node], float]) -> tuple[Que
             if board_hash in visited: continue
             visited.add(board_hash)
             item.cumulative_weight = current.cumulative_weight + heuristic(item)
-            queue.put(item)
-        current = queue.get()
+            heapq.heappush(heap, (item.cumulative_weight, item))
+        current = heapq.heappop(heap)[1]
 
     return get_path_from_node(current), total_visited
 
