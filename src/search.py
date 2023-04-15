@@ -7,12 +7,6 @@ from queue import Queue, LifoQueue
 
 import board_utils
 
-"""
-Valores muito significativos podem acarretar no melhor caminho não sendo escolhido.
-Mas o tempo de busca é mais rápida que a de custo uniforme
-"""
-HEURISTIC_WEIGHT = 0.5
-
 
 class Node:
     def __init__(self, board, parent, move, depth):
@@ -77,7 +71,7 @@ def basic_heuristic(node: Node):
     score = len(board_utils.GOAL)
     for i in range(board_utils.N_ELEMENTS):
         score -= node.board[i] == (i + 1) % board_utils.N_ELEMENTS
-    return score * HEURISTIC_WEIGHT
+    return score
 
 
 def manhattan_distance(element: int, position: int):
@@ -93,10 +87,10 @@ def advanced_heuristic(node: Node):
         previous_distance = manhattan_distance(node.parent.board[node.move], node.move) + \
                             manhattan_distance(node.parent.board[node.parent.move], node.parent.move)
 
-        node.weight = node.parent.weight + ((current_distance - previous_distance) * HEURISTIC_WEIGHT)
+        node.weight = node.parent.weight + (current_distance - previous_distance)
     else:
         node.weight = sum([manhattan_distance(node.board[i], i)
-                           for i in range(board_utils.N_ELEMENTS)]) * HEURISTIC_WEIGHT
+                           for i in range(board_utils.N_ELEMENTS)])
     return node.weight
 
 def get_path_from_node(node: Node) -> Queue[tuple[int, int]]:
