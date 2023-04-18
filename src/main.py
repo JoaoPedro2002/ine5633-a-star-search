@@ -13,7 +13,7 @@ VERBOSE: tempo, numero de nodos e movimentos
 INFO: tudo acima mais o tabuleiro
 DEBUG: tudo acima mais informações da busca
 """
-LOG_LEVEL = VERBOSE  # VERBOSE, 'INFO' ou 'DEBUG'
+LOG_LEVEL = 'DEBUG'  # VERBOSE, 'INFO' ou 'DEBUG'
 
 
 def measure_search(search_function: Callable, func_args: tuple[array,Callable] | tuple[array]):

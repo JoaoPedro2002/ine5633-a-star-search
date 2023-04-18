@@ -34,7 +34,7 @@ def uniform_cost_search(board: [int]) -> tuple[Queue[tuple[int, int]], int]:
     :return: sequencia de movimentos para resolver o tabuleiro enviado
     """
     queue = Queue()
-    current = Node(board, None, None, 0)
+    current = Node(board, None, board_utils.get_empty_pos(board), 0)
     visited = set()
     total_visited = 0
     while not board_utils.game_is_over(current.board):
@@ -51,7 +51,7 @@ def uniform_cost_search(board: [int]) -> tuple[Queue[tuple[int, int]], int]:
 
 def a_star_search(board: [int], heuristic: Callable[[Node], float]) -> tuple[Queue[tuple[int, int]], int]:
     heap = []
-    current = Node(board, None, None, 0)
+    current = Node(board, None, board_utils.get_empty_pos(board), 0)
     visited = set()
     total_visited = 0
     while not board_utils.game_is_over(current.board):
@@ -102,9 +102,9 @@ def get_path_from_node(node: Node) -> Queue[tuple[int, int]]:
 
 
 def children(node) -> list[Node]:
-    moves, empty_space = board_utils.board_state(node.board)
-    if node.depth >= 2:
+    moves = board_utils.possible_moves(node.move)
+    if node.depth >= 1:
         moves.remove(node.parent.move)
-    nodes = [Node(board_utils.move(node.board, move, empty_space),
+    nodes = [Node(board_utils.move(node.board, move, node.move),
                   node, move, node.depth + 1) for move in moves]
     return nodes
